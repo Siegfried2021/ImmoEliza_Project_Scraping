@@ -6,7 +6,16 @@ import logging
 from filelock import FileLock
 
 class RealEstateProperty:
+    """
+    Class representing a real estate property and its attributes.
+    """
     def __init__(self, ad_url):
+        """
+        Initializes a RealEstateProperty object.
+
+        Args:
+            ad_url (str): The URL of the property ad.
+        """
         self.ad_url = ad_url
         self.id = None
         self.sales_type = None
@@ -32,6 +41,9 @@ class RealEstateProperty:
         self.initialize_base_attributes()
         
     def initialize_base_attributes(self):
+        """
+        Initializes base attributes from the ad URL.
+        """
         list_of_first_items = self.ad_url.split('/')
         self.id = list_of_first_items[-1]
         self.post_code = list_of_first_items[-2]
@@ -40,6 +52,9 @@ class RealEstateProperty:
         self.property_type = list_of_first_items[-5]
         
     def page_scraper(self):
+        """
+        Scrapes the property details from the ad page.
+        """
         headers = {"User-agent": "mathieu", "Authorization": "mathieu2"}
         response = requests.get(self.ad_url, headers=headers)
         response.raise_for_status()
@@ -120,6 +135,12 @@ class RealEstateProperty:
             self.energy = th_energy.find_next('td').contents[0].strip()
 
     def to_dict(self):
+        """
+        Converts the property attributes to a dictionary.
+
+        Returns:
+            dict: Dictionary representation of the property attributes.
+        """
         return {
             "id": self.id,
             "post_code": self.post_code,
@@ -137,7 +158,7 @@ class RealEstateProperty:
             "furnished": self.furnished,
             "terrace": self.terrace,
             "surface_terrace": self.surface_terrace,
-            "surface_garden" : self.surface_garden,
+            "surface_garden": self.surface_garden,
             "building_state": self.building_state,
             "swimming_pool": self.swimming_pool,
             "basement": self.basement,
@@ -145,6 +166,12 @@ class RealEstateProperty:
         }
 
     def save_to_json(self, province):
+        """
+        Saves the property data to a JSON file.
+
+        Args:
+            province (str): The province for which to save the property data.
+        """
         property_data = self.to_dict()
         filename = f"properties_{province}_rent.json"
         try:
@@ -159,6 +186,5 @@ class RealEstateProperty:
                 else:
                     with open(filename, 'w') as file:
                         json.dump([property_data], file, indent=4)
-            # logging.debug(f"Saved property {self.id} to {filename}")
         except IOError as e:
             logging.error(f"Error saving property {self.id} to {filename}: {e}")
